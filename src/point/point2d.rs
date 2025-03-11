@@ -46,7 +46,6 @@ impl<T: Num + Copy + Debug> Add for Point2D<T> {
             y: self.y + other.y,
         }
     }
-
 }
 impl<T: Num + Copy + Debug> Sub for Point2D<T> {
     type Output = Self;
@@ -92,12 +91,45 @@ impl<T: Float + Debug> Point2D<T> {
     pub fn cross_product(&self, other: &Point2D<T>) -> T {
         self.x * other.y - self.y * other.x
     }
+
+    
+    /// Normalize the point: unit vector like conversion
+    pub fn normalize(&self) -> Option<Point2D<T>> {
+        let magnitude = (self.x * self.x + self.y * self.y).sqrt();
+        
+        // if it is a zero vector representation
+        if magnitude == T::zero() {
+            return None; // cannot normalize a zero vector
+        }
+
+        Some( Point2D {
+            x: self.x / magnitude,
+            y: self.y / magnitude,
+        })
+    }
+     /// rotates the point around another point (defaulting to origin)
+     pub fn rotate(&self, angle: f64, center: Option<Point2D<T>>) -> Point2D<T> {
+        let theta = T::from(angle.to_radians()).unwrap();
+        let cos_theta = theta.cos();
+        let sin_theta = theta.sin();
+
+        let center = center.unwrap_or( Point2D::origin());
+        
+        let new_x = center.x + (self.x - center.x) * cos_theta - (self.y - center.y) * sin_theta;
+        let new_y = center.y + (self.x - center.x) * sin_theta + (self.y - center.y) * cos_theta;
+
+        Point2D { x: new_x, y: new_y }
+    }
+    /// rotates the point around origin
+    pub fn rotate_origin(&self, angle: f64) -> Point2D<T> {
+        self.rotate(angle, None)
+    }
 }
 
 #[cfg(test)]
 mod tests{
     use super::*;
-
+    use approx::assert_relative_eq;
     #[test]
     fn test_point2d_new() {
         let point = Point2D::new(1.0, 2.0);
@@ -180,5 +212,78 @@ mod tests{
         let cross = p1.cross_product(&p2);
 
         assert_eq!(cross, -2.0);
+    }
+
+    #[test]
+    fn test_point2d_rotation_around_origin() {
+        let p = Point2D { x: 1.0, y: 0.0 };
+
+        //90° rotation should rotate (1,0) to (0,1)
+        let rotated = p.rotate(90.0, None);
+        assert_relative_eq!(rotated.x, 0.0, epsilon = 1e-6);
+        assert_relative_eq!(rotated.y, 1.0, epsilon = 1e-6);
+
+        //180° rotation
+        let rotated = p.rotate(180.0, None);
+        assert_relative_eq!(rotated.x, -1.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, 0.0, epsilon=1e-6);
+        
+        //270° rotation
+        let rotated = p.rotate(270.0, None);
+        assert_relative_eq!(rotated.x, 0.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, -1.0, epsilon=1e-6);
+
+        //360° rotation
+        let rotated = p.rotate(360.0, None);
+        assert_relative_eq!(rotated.x, 1.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, 0.0, epsilon=1e-6);
+    }
+
+    #[test]
+    fn test_point2d_rotation_negative_coordinates() {
+        let p = Point2D {x: -1.0, y: -1.0};
+
+        let rotated = p.rotate(180.0, None);
+
+        assert_relative_eq!(rotated.x, 1.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, 1.0, epsilon=1e-6);
+    }
+    #[test]
+    fn test_point2d_rotation_around_custom_center() {
+        let p = Point2D { x: 2.0, y: 2.0 };
+        let center = Point2D {x: 1.0, y: 1.0 };
+        
+
+        let rotated = p.rotate(90.0, Some(center));
+        assert_relative_eq!(rotated.x, 0.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, 2.0, epsilon=1e-6);
+
+        let rotated = p.rotate(180.0, Some(center));
+        assert_relative_eq!(rotated.x, 0.0, epsilon=1e-6);
+        assert_relative_eq!(rotated.y, 0.0, epsilon=1e-6);
+    }
+    #[test]
+    fn test_normalization_nonzero_vector() {
+        let p = Point2D {x: 3.0, y: 4.0};
+        let normalized = p.normalize().unwrap();
+        
+        //expected unit vector (0.6, 0.8)
+        assert_relative_eq!(normalized.x, 0.6, epsilon=1e-6);
+        assert_relative_eq!(normalized.y, 0.8, epsilon=1e-6);
+    }
+
+    #[test]
+    fn test_point2d_normalize_unit_vector() {
+        let p = Point2D {x: 1.0, y: 0.0};
+        let normalized = p.normalize().unwrap();
+        
+        assert_relative_eq!(normalized.x, 1.0, epsilon=1e-6);
+        assert_relative_eq!(normalized.y, 0.0, epsilon=1e-6);
+    }
+
+    #[test]
+    fn test_point2d_normalize_zero_vector() {
+        let p =  Point2D {x: 0.0, y: 0.0};
+        assert!(p.normalize().is_none(), "Expected None: Cannot normalize zero vector");
     }
 }
