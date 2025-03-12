@@ -2,10 +2,10 @@ use num::{Num, Float};
 use std::ops::{Add, Sub, Mul, Div};
 use std::fmt::{Debug, Display, self};
 
-#[derive(Debug, Clone, Copy)]
-pub struct Point2D<T: Num + Copy + Debug> {
-    x: T,
-    y: T,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Point2D<T: Num + Copy + Debug + PartialEq> {
+    pub x: T,
+    pub y: T,
 }
 
 impl<T: Num + Copy + Debug> Point2D<T> {
