@@ -90,6 +90,53 @@ pub fn convex_hull_2d<T: Float + Debug>(points: &[Point2D<T>]) -> Vec<Point2D<T>
     lower
 }
 
+/// Projects a point onto a given line and returns the closest point on the line.
+///
+/// The projection is computed using the formula:
+///
+/// ```text
+/// x' = (m² * x₁ + x₀ + m (y₀ - y₁)) / (m² + 1)
+/// y' = m * (x' - x₁) + y₁
+/// ```
+///
+/// where:
+/// - `(x₀, y₀)` is the original point.
+/// - `(x₁, y₁)` is a point on the given line.
+/// - `m` is the slope of the line.
+///
+/// # Parameters
+/// - `point`: A reference to the `Point2D<T>` to be projected.
+/// - `line`: A reference to the `Line2D<T>` onto which the point is projected.
+///
+/// # Returns
+/// - A `Point2D<T>` representing the closest point on the line to the given point.
+///
+/// # Special Cases
+/// - If the line is vertical (`m` is undefined), the projected point will have the same x-coordinate as the line.
+/// - If the line is horizontal (`m = 0`), the projected point will have the same y-coordinate as the line.
+///
+/// # Type Parameters
+/// - `T`: A floating-point type that implements `Float` and `Copy`.
+pub fn project_point_to_line_2d<T: Float + Copy>(point: &Point2D<T>, line: &Line2D<T>) -> Point<T> {
+    let (Point2D{x: x1, y: y1}, Point2D{x: x2, y: y2}) = line;
+    let Point2D{x: x0, y: y0} = point;
+
+    let epsilon = T::from(1e-6).unwrap();
+
+    //in case of vertical lines
+    if (x2 - x1).abs() < epsilon {
+        return Point2D::new(x1, y0);
+    }
+
+    let m = (y2 - y1) / (x2 - x1);
+
+    let x_prime = (m * m * x1 + x0 + m * (y0 - y1)) / (m * m + T::one())
+
+    let y_prime = m * (x_prime - x1) + y1;
+
+    Point2D::new(x_prime, y_prime)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
