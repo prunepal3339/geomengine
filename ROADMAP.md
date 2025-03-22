@@ -1,4 +1,3 @@
-```markdown
 # Geometry Engine Roadmap
 
 This document outlines the development roadmap for the Geometry Engine, a Rust-based library for 2D and 3D geometric computations. The roadmap is divided into **phases**, each with specific goals and deliverables. Future extensions are also listed to guide long-term development.
@@ -126,37 +125,3 @@ We welcome contributions from the community! If you'd like to contribute, please
 3. Submit a pull request with a detailed description of your changes.
 
 For major changes, please open an issue first to discuss the proposed changes.
-
----
-
-## Changelog
-
-- **v0.1.0**: Initial release with 2D primitives and basic algorithms.
-- **v0.2.0**: Added advanced 2D features (e.g., convex hull, triangulation, Voronoi diagrams).
-- **v0.3.0**: Implemented 3D primitives and algorithms.
-- **v0.4.0**: Released with comprehensive documentation and examples.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
----
-
-### **Key Updates in the Roadmap**
-1. **2D-First Approach**:
-   - Phase 1 focuses on `Point2D` and `Line2D` with basic algorithms.
-   - Phase 2 expands to advanced 2D features (e.g., polygons, convex hull, Voronoi diagrams) and use cases (e.g., kinematics, CAD/CAM, GIS).
-
-2. **3D in Phase 3**:
-   - Phase 3 introduces 3D primitives (`Point3D`, `Line3D`, `Plane3D`) and algorithms.
-
-3. **Parallel Documentation**:
-   - Documentation and examples are developed alongside each phase to ensure usability.
-
-4. **Future Extensions**:
-   - Curves, serialization, GPU acceleration, and advanced algorithms are planned for future releases.
-
----
